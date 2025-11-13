@@ -1217,7 +1217,7 @@ print(e1.greet())  # Output: Hi, I'm John and I work as Engineer
 
 ---
 
-### 🧱 Method Overriding
+### 🧱 Polymorthism: Method Overriding
 
 Overriding happens when a **child class** defines a method with the **same name** as one in the **parent class**.
 
@@ -1263,6 +1263,72 @@ Even though `p.greet()` is called on both, the correct version (from each class)
 
 ---
 
+Here’s a compact but complete summary of **abstraction in Python** — ideal for your OOP week notes:
+
+---
+
+### 🧠 Abstraction 
+
+**Abstraction** = hiding *implementation details* and exposing *only what’s necessary*.
+It helps simplify complex systems by focusing on **what** an object does, not **how** it does it.
+
+---
+
+#### 🔹 Example Concept
+
+```python
+class Car:
+    def start(self):
+        self._ignite_engine()
+        print("Car started")
+
+    def _ignite_engine(self):   # internal (abstracted)
+        print("Igniting engine...")
+```
+
+✅ The user calls `start()`, not caring how `_ignite_engine()` works.
+
+---
+
+#### 🔹 Abstract Base Classes (advanced, probably ont in QC, but important for large codebases) (ABCs)
+
+Use the **`abc`** module to define abstract methods that **must** be implemented by subclasses.
+
+```python
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+
+class Circle(Shape):
+    def __init__(self, r): self.r = r
+    def area(self): return 3.14 * self.r**2
+```
+
+✅ Can’t instantiate `Shape()` directly
+✅ Forces subclasses to implement `area()`
+
+---
+
+#### 🔹 Why it matters
+
+* Defines **interfaces** for families of classes.
+* Enforces **structure** in large codebases.
+* Supports **polymorphism** cleanly.
+
+---
+
+#### ✅ Summary
+
+| Concept                   | Purpose                       | Example                          |
+| ------------------------- | ----------------------------- | -------------------------------- |
+| **Abstraction**           | Hide details, show essentials | `car.start()` hides engine logic |
+| **ABC / @abstractmethod** | Define required methods       | `Shape.area()`                   |
+| **Implementation**        | Done by subclasses            | `Circle.area()`                  |
+
+
 ### 🧰 Additional OOP Features in Python
 
 | Concept                | Description                                                                    | Example                     |
@@ -1293,11 +1359,13 @@ class MathUtils:
 | Concept          | Example                                             |
 | ---------------- | --------------------------------------------------- |
 | **Class**        | Blueprint for a car                                 |
-| **Object**       | A specific car (VIN #123)                           |
+| **Object**       | A specific car (VIN #123)                         |
 | **Attributes**   | Color, model, year                                  |
 | **Methods**      | start(), accelerate(), brake()                      |
 | **Inheritance**  | ElectricCar inherits from Car                       |
 | **Polymorphism** | Different cars implement `accelerate()` differently |
+| **Abstraction**  | We dont know how the engine, brakes, etc works      |
+| **Encapsulation**| You must press a button inside the car to access whats under the hood      |
 
 ---
 
