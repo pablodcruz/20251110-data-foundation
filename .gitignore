@@ -1,1 +1,55 @@
-main.py
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.db
+
+# Byte-compiled / optimized / DLL files
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# -------------------------
+# Jupyter Notebooks
+# -------------------------
+.ipynb_checkpoints/
+*.ipynb~
+
+# VS Code
+.vscode/
+.settings/
+
+# -------------------------
+# OS-specific files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+logs/
+
+# -------------------------
+# pytest / coverage
+# -------------------------
+.cache/
+.coverage
+htmlcov/
+
+# -------------------------
+# Project-specific
+# -------------------------
+# Ignore compiled SQL artifacts (if created)
+*.sql~
