@@ -326,6 +326,10 @@ def run_source(cfg):
 
 ---
 
+## Resources
+
+[Data Scenarios](https://github.com/ahmadvh/Data-Scenario)
+
 ## 🧭 Summary
 
 The **Data Ingestion Subsystem** is a foundational, end-to-end data engineering project.

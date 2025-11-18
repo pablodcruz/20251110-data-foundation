@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS todos (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 120),
