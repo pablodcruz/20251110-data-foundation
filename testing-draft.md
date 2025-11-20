@@ -327,6 +327,28 @@ python -m unittest
 
 This structure scales nicely as models, pipelines, and utilities grow.
 
+## 7. Test Structure: Arrange → Act → Assert
+
+The Arrange-Act-Assert pattern is widely used. Using AAA keeps tests readable and structured:
+
+* **Arrange** — set up inputs
+* **Act** — call the function being tested
+* **Assert** — verify the output
+
+### 🐍 AAA in pytest (example)
+
+```python
+def test_normalize_vector():
+    # Arrange
+    vector = [3, 4]
+
+    # Act
+    result = normalize_vector(vector)
+
+    # Assert
+    assert pytest.approx(np.linalg.norm(result)) == 1.0
+```
+
 </details>
 
 <details><summary>Summary</summary>
