@@ -1,17 +1,17 @@
-# Cumulative for Python Test
+# Cumulative for the module
 
 <details><summary>Learning Objectives</summary>
 
 # Learning Objectives
 After completing this module, associates should be able to:
 
-- Explain why automated testing matters in software development
-- Understand the differences between Python’s built-in `unittest` framework and the third-party `pytest` framework
-- Write basic test cases using `unittest.TestCase`
-- Write pytest-style test functions using simple `assert` statements
-- Run test suites using the Python CLI and the pytest CLI
-- Organize tests into files and folders that each framework can automatically discover
-- Use fixtures in pytest and setup/teardown methods in unittest
+- Explain why automated testing is critical in data and AI projects
+- Describe the roles of Python’s built-in `unittest` framework and the third-party `pytest` framework
+- Write basic unit tests for metrics, preprocessing functions, and ETL steps
+- Use `unittest.TestCase` and assertion methods to structure tests
+- Use pytest features such as simple `assert` statements, fixtures, and parametrized tests
+- Organize tests into a `tests/` folder so they can be discovered and run from the command line
+- Run test suites with `python -m unittest` and with `pytest`
 
 </details>
 
@@ -19,33 +19,30 @@ After completing this module, associates should be able to:
 
 # What is Testing in Python?
 
-Testing is the process of verifying that your code behaves the way you expect. It helps catch errors early, prevents regressions, and makes your code easier to maintain.
+Testing is the practice of writing **code that checks other code**.
 
----
+In data and AI work, it is easy for bugs to hide inside:
 
-## 1. `unittest` (Built-in Testing Framework)
+- metric calculations  
+- feature engineering steps  
+- data cleaning and ETL pipelines  
+- model input/output shapes  
 
-`unittest` is Python’s **standard library** testing framework modeled after Java’s JUnit.  
-It uses:
+Small mistakes can silently produce wrong numbers, train bad models, or corrupt datasets.
 
-- Classes (`unittest.TestCase`)
-- Methods that begin with `test_`
-- Assertions like `self.assertEqual`
+Python provides two main ways to write automated tests:
 
-unittest is included with Python — no installation required.
+1. **`unittest`** – the **built-in** testing framework  
+   - Class-based (`unittest.TestCase`)  
+   - Uses assertion methods like `assertEqual`, `assertAlmostEqual`, `assertRaises`  
+   - Common in older codebases and still widely used in enterprise environments  
 
----
+2. **`pytest`** – a very popular **third-party** framework  
+   - Function-based tests using plain `assert`  
+   - Powerful fixtures and parametrization for data-heavy testing  
+   - Often preferred for modern data and ML projects because the tests are shorter and easier to read  
 
-## 2. `pytest` (3rd-party but extremely popular)
-
-`pytest` is a **lightweight, powerful testing framework** that focuses on:
-
-- Simple tests using `assert`
-- Automatic test discovery
-- Detailed assertion introspection
-- Rich plugins and fixtures
-
-Many modern Python teams prefer pytest because tests are cleaner and easier to write.
+In this module, you will see both, with a focus on examples that feel natural for analytics, ETL, and machine learning workflows.
 
 </details>
 
@@ -53,24 +50,24 @@ Many modern Python teams prefer pytest because tests are cleaner and easier to w
 
 # Real World Application for Testing
 
-Testing is used in almost every part of software development:
+In real AI and data engineering projects, automated tests are used to:
 
-### ✔️ Backend systems  
-Ensure API routes, services, and business rules work correctly.
+- **Validate metrics and loss functions**  
+  Make sure accuracy, precision/recall, or custom scores are computed correctly.
 
-### ✔️ Data engineering  
-Validate transformations, ETL logic, and ensure schemas are correct.
+- **Protect data cleaning and feature engineering**  
+  Ensure steps like imputing missing values, scaling features, and encoding categories behave as expected and do not change the original data accidentally.
 
-### ✔️ Machine learning workflows  
-Verify feature extraction, metrics, models, and pipelines.
+- **Test ETL pipelines**  
+  Verify that “bronze → silver → gold” transformations create the right columns, types, and row counts.
 
-### ✔️ DevOps / CI-CD  
-GitHub Actions, Jenkins, and Azure DevOps run tests automatically before deployment.
+- **Check model interfaces**  
+  Confirm that prediction functions accept the expected shapes and return outputs of the right size and type.
 
-### ✔️ Enterprise applications  
-Large companies rely on testing to prevent bugs and regressions across large teams.
+- **Support CI/CD**  
+  In many teams, every pull request triggers a test run in GitHub Actions, Jenkins, or Azure DevOps. A failing test can block a broken model or pipeline from going to production.
 
-Knowing both unittest and pytest prepares developers for real-world professional workflows.
+Good tests give data teams confidence to refactor code, upgrade libraries, and experiment without constantly worrying about breaking something subtle.
 
 </details>
 
@@ -78,124 +75,257 @@ Knowing both unittest and pytest prepares developers for real-world professional
 
 # Implementation
 
-## Creating Tests With `unittest`
+## Installing pytest
 
-### 1. Create a test file  
-`test_example.py`:
-
-```python
-import unittest
-from my_app import add_numbers
-
-class TestAddNumbers(unittest.TestCase):
-
-    def test_add_two_numbers(self):
-        self.assertEqual(add_numbers(2, 3), 5)
-
-    def test_add_negative(self):
-        self.assertEqual(add_numbers(-1, 1), 0)
-
-if __name__ == "__main__":
-    unittest.main()
-````
-
-### 2. Running unittest tests
-
-```bash
-python -m unittest
-```
-
-or run a specific test file:
-
-```bash
-python -m unittest test_example.py
-```
-
----
-
-## Creating Tests With `pytest`
-
-### 1. Install pytest
+If `pytest` is not already available in your environment, install it with:
 
 ```bash
 pip install pytest
 ```
 
-### 2. Write a test file
+`unittest` is part of the Python standard library, so it does not need to be installed.
 
-`test_example.py`:
+---
+
+## 1. Testing a Simple Metric Function with `unittest`
+
+Imagine a small utility in `metrics.py` that computes accuracy:
 
 ```python
-from my_app import add_numbers
+# metrics.py
+def accuracy(predictions, labels):
+    if len(predictions) != len(labels):
+        raise ValueError("predictions and labels must have same length")
 
-def test_add_two_numbers():
-    assert add_numbers(2, 3) == 5
-
-def test_add_negative():
-    assert add_numbers(-1, 1) == 0
+    correct = sum(p == y for p, y in zip(predictions, labels))
+    return correct / len(labels)
 ```
 
-### 3. Run all tests
+A `unittest`-style test file:
+
+```python
+# test_metrics_unittest.py
+import unittest
+from metrics import accuracy
+
+class TestAccuracy(unittest.TestCase):
+
+    def test_perfect_accuracy(self):
+        preds = [1, 0, 1]
+        labels = [1, 0, 1]
+        self.assertEqual(accuracy(preds, labels), 1.0)
+
+    def test_partial_accuracy(self):
+        preds = [1, 1, 0, 0]
+        labels = [1, 0, 0, 0]
+        self.assertAlmostEqual(accuracy(preds, labels), 0.75)
+
+    def test_mismatched_lengths_raises(self):
+        preds = [1, 0]
+        labels = [1]
+        with self.assertRaises(ValueError):
+            accuracy(preds, labels)
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+Run all unittest tests:
+
+```bash
+python -m unittest
+```
+
+---
+
+## 2. Testing the Same Logic with `pytest`
+
+The same tests written in pytest style:
+
+```python
+# test_metrics_pytest.py
+from metrics import accuracy
+import pytest
+
+def test_perfect_accuracy():
+    assert accuracy([1, 0, 1], [1, 0, 1]) == 1.0
+
+def test_partial_accuracy():
+    assert accuracy([1, 1, 0, 0], [1, 0, 0, 0]) == 0.75
+
+def test_mismatched_lengths_raises():
+    with pytest.raises(ValueError):
+        accuracy([1, 0], [1])
+```
+
+Run all pytest tests:
 
 ```bash
 pytest
 ```
 
-### 4. Verbose mode
-
-```bash
-pytest -v
-```
-
 ---
 
-## Comparing `unittest` and `pytest`
+## 3. Using pytest Fixtures for Data / AI Workflows
 
-| Feature            | unittest                           | pytest                 |
-| ------------------ | ---------------------------------- | ---------------------- |
-| Included in Python | ✔️ Yes                             | ❌ No (pip install)     |
-| Test style         | Class-based                        | Function-based         |
-| Assertions         | Many methods (`assertEqual`, etc.) | Just `assert`          |
-| Fixtures           | Setup/teardown methods             | Very powerful fixtures |
-| Popularity         | Common in older codebases          | Most popular today     |
+Fixtures are great for creating **reusable data objects** like NumPy arrays or pandas DataFrames.
 
----
-
-## Using Fixtures (pytest)
-
-Fixtures allow reusable setup logic:
+Example: testing a data cleaning function in `cleaning.py`:
 
 ```python
+# cleaning.py
+import pandas as pd
+
+def drop_missing_target(df, target_col):
+    """Return a new DataFrame with rows removed where target_col is null."""
+    return df.dropna(subset=[target_col])
+```
+
+pytest tests with a fixture:
+
+```python
+# test_cleaning.py
 import pytest
+import pandas as pd
+from cleaning import drop_missing_target
 
 @pytest.fixture
-def sample_numbers():
-    return [1, 2, 3]
+def raw_df():
+    return pd.DataFrame(
+        {
+            "feature": [1.0, 2.0, None, 4.0],
+            "target":  [0,   1,   None, 0],
+        }
+    )
 
-def test_length(sample_numbers):
-    assert len(sample_numbers) == 3
+def test_drop_missing_target_removes_null_rows(raw_df):
+    cleaned = drop_missing_target(raw_df, "target")
+    assert cleaned["target"].isna().sum() == 0
+    assert len(cleaned) == 3  # one row with null target removed
+
+def test_drop_missing_target_does_not_modify_original(raw_df):
+    before = raw_df.copy()
+    drop_missing_target(raw_df, "target")
+    # Original should stay unchanged
+    assert raw_df.equals(before)
 ```
 
 ---
 
-## Setup/Teardown (unittest)
+## 4. Parametrized Tests for Edge Cases
+
+Data and AI code often needs to handle many edge cases (empty arrays, all zeros, class imbalance, etc.).
+`@pytest.mark.parametrize` lets you test multiple scenarios in one function.
+
+Example: scaling a NumPy array in `preprocessing.py`:
 
 ```python
-import unittest
+# preprocessing.py
+import numpy as np
 
-class TestStuff(unittest.TestCase):
-
-    def setUp(self):
-        self.data = [1, 2, 3]
-
-    def tearDown(self):
-        self.data = None
-
-    def test_length(self):
-        self.assertEqual(len(self.data), 3)
+def normalize_vector(x):
+    x = np.asarray(x, dtype=float)
+    norm = np.linalg.norm(x)
+    if norm == 0:
+        return x
+    return x / norm
 ```
 
-These patterns appear frequently in enterprise-level testing.
+Parametrized pytest tests:
+
+```python
+# test_preprocessing.py
+import numpy as np
+import pytest
+from preprocessing import normalize_vector
+
+@pytest.mark.parametrize(
+    "vector, expected_norm",
+    [
+        ([1, 0, 0], 1.0),
+        ([3, 4], 1.0),
+        ([0, 0, 0], 0.0),
+    ],
+)
+def test_normalize_vector_norm_is_expected(vector, expected_norm):
+    result = normalize_vector(vector)
+    norm = np.linalg.norm(result)
+    assert norm == pytest.approx(expected_norm, rel=1e-6)
+```
+
+---
+
+## 5. Testing Simple ETL Steps
+
+Example: verify that a “bronze → silver” transformation adds required columns.
+
+```python
+# transform.py
+import pandas as pd
+
+def add_total_column(df):
+    """Assumes df has 'price' and 'quantity' columns."""
+    df = df.copy()
+    df["total"] = df["price"] * df["quantity"]
+    return df
+```
+
+pytest test:
+
+```python
+# test_transform.py
+import pandas as pd
+from transform import add_total_column
+
+def test_add_total_column_computes_correct_values():
+    df = pd.DataFrame(
+        {
+            "price": [10.0, 5.0],
+            "quantity": [2, 3],
+        }
+    )
+
+    result = add_total_column(df)
+
+    assert "total" in result.columns
+    assert list(result["total"]) == [20.0, 15.0]
+```
+
+---
+
+## 6. Organizing Tests in a Data / AI Project
+
+A common layout:
+
+```python
+project/
+    my_app/
+        __init__.py
+        metrics.py
+        cleaning.py
+        preprocessing.py
+        transform.py
+    tests/
+        __init__.py # Optional: needed for unittest discovery in some cases
+        test_metrics_pytest.py
+        test_cleaning.py
+        test_preprocessing.py
+        test_transform.py
+```
+
+From the **project root**, you can then run:
+
+```bash
+pytest
+```
+
+or, if using unittest-style tests:
+
+```bash
+python -m unittest
+```
+
+This structure scales nicely as models, pipelines, and utilities grow.
 
 </details>
 
@@ -203,12 +333,15 @@ These patterns appear frequently in enterprise-level testing.
 
 # Summary
 
-* Python supports two major testing styles: the built-in `unittest` framework and the third-party `pytest` framework.
-* `unittest` uses classes, setup methods, and many assertion helper methods.
-* `pytest` uses simple functions, plain `assert`, and a powerful fixture system.
-* Both frameworks support automatic test discovery based on naming conventions.
-* Tests can be run through `python -m unittest` or `pytest`, depending on the framework used.
-* Automated testing is essential for catching bugs, preventing regressions, and supporting CI/CD pipelines.
+* Automated tests are critical in data and AI projects to protect metrics, preprocessing, ETL steps, and model interfaces from subtle bugs.
+* Python provides two major testing frameworks:
+
+  * **`unittest`** – built in, class-based, uses assertion methods.
+  * **`pytest`** – external, function-based, uses simple `assert`, fixtures, and parametrization.
+* `unittest` tests often live in classes that inherit from `unittest.TestCase`, with methods beginning with `test_`.
+* pytest tests are plain functions; fixtures and `@pytest.mark.parametrize` make it easy to test many data scenarios.
+* Both frameworks can be run from the command line and integrated into CI/CD pipelines.
+* A clear `tests/` folder structure keeps growing data/ML projects maintainable and testable.
 
 </details>
 

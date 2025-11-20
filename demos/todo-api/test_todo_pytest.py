@@ -123,7 +123,7 @@ def test_rename_raises_for_empty_title():
     assert todo.title == "New title"
 
     # Error case: too short after strip
-    # TODO: provide comments
+    # This test verifies error handling behavior — specifically, that the service raises a ValueError when someone tries to retrieve a todo that does NOT exist.
     with pytest.raises(ValueError):
         todo.rename("   ")
 

@@ -119,6 +119,7 @@ class TestTodoDomain(unittest.TestCase):
         self.assertEqual(todo.title, "New title")
 
         # Very short / empty title should raise ValueError (see domain.py logic)
+        # This test verifies error handling behavior — specifically, that the service raises a ValueError when someone tries to retrieve a todo that does NOT exist.
         with self.assertRaises(ValueError):
             todo.rename("  ")  # too short after strip
 
