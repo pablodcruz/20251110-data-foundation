@@ -53,3 +53,7 @@ htmlcov/
 # -------------------------
 # Ignore compiled SQL artifacts (if created)
 *.sql~
+
+
+# Random
+private-docs
