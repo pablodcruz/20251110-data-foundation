@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pandas as pd
 
+exercise_dir = Path(__file__).resolve().parent
+
 # Load the CSV
-df = pd.read_csv("products.csv")
+df = pd.read_csv(exercise_dir / "products.csv")
 
 # Create image filenames from the title column
 df["image"] = (
@@ -15,6 +19,6 @@ df["image"] = (
 )
 
 # Save new CSV
-df.to_csv("products_with_images.csv", index=False)
+df.to_csv(exercise_dir / "products_with_images.csv", index=False)
 
 df.head()
